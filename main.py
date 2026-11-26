@@ -1,6 +1,5 @@
 import streamlit as st
 import threading
-FAYL_KILIDI = threading.Lock()
 import pandas as pd
 import math
 import os
@@ -8,6 +7,7 @@ import json
 from google import genai
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
+FAYL_KILIDI = threading.Lock()
 FAYL_ADI = "Cudo_Klublar_Bazasi.xlsx"
 
 SUTUNLAR = [
@@ -126,7 +126,7 @@ st.set_page_config(page_title="Azərbaycan Cüdo Federasiyası | Elektron Baza",
 st.markdown("""
 <style>
     .stApp {
-        background-color: #F0F4F8 !important;
+        background: linear-gradient(180deg, #E2E8F0 0%, #F8FAFC 40%, #EFF6FF 100%) !important;
         color: #0F172A !important;
     }
     h1, h2, h3, h4, p, label, .stMarkdown, div[data-testid="stWidgetLabel"] p {
@@ -134,82 +134,72 @@ st.markdown("""
         font-weight: 600 !important;
     }
     .header-banner {
-        background: linear-gradient(135deg, #0A2540 0%, #1B4965 60%, #2C7DA0 100%);
-        padding: 24px 32px;
+        background: linear-gradient(135deg, #06182C 0%, #0F3460 55%, #1E5F74 100%);
+        padding: 30px 38px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        box-shadow: 0 12px 28px rgba(6, 24, 44, 0.22);
+        border-left: 10px solid #D97706;
+    }
+    .header-banner h1 { color: #FFFFFF !important; margin: 0; font-size: 30px; font-weight: 800; }
+    .header-banner p { color: #CBD5E1 !important; margin: 8px 0 0 0; font-size: 15px; font-weight: 400 !important; }
+    .info-card {
+        background: rgba(255, 255, 255, 0.94);
+        padding: 22px;
         border-radius: 14px;
-        margin-bottom: 22px;
-        box-shadow: 0 8px 20px rgba(10, 37, 64, 0.15);
-        border-left: 8px solid #E09F3E;
+        border: 1px solid #CBD5E1;
+        border-left: 6px solid #D97706;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        margin-bottom: 16px;
     }
-    .header-banner h1 {
-        color: #FFFFFF !important;
-        margin: 0;
-        font-size: 28px;
-        font-weight: 700;
-    }
-    .header-banner p {
-        color: #E2E8F0 !important;
-        margin: 6px 0 0 0;
-        font-size: 15px;
-        font-weight: 400 !important;
+    div[data-testid="stForm"] {
+        background: #FFFFFF !important;
+        padding: 26px !important;
+        border-radius: 16px !important;
+        border: 1px solid #CBD5E1 !important;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.07) !important;
     }
     input, textarea, div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {
-        background-color: #FFFFFF !important;
+        background-color: #F8FAFC !important;
         color: #0F172A !important;
-        border: 1px solid #94A3B8 !important;
-        border-radius: 8px !important;
+        border: 1.5px solid #94A3B8 !important;
+        border-radius: 10px !important;
     }
+    input::placeholder, textarea::placeholder { color: #64748B !important; opacity: 1 !important; }
     .stTabs [data-baseweb="tab"] {
         background-color: #FFFFFF !important;
         color: #0F172A !important;
-        border-radius: 8px 8px 0 0;
-        padding: 10px 24px;
+        border-radius: 10px 10px 0 0;
+        padding: 12px 24px;
         border: 1px solid #CBD5E1;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #0A2540 !important;
+        background: linear-gradient(90deg, #06182C 0%, #0F3460 100%) !important;
         color: #FFFFFF !important;
+        border-bottom: 3px solid #D97706 !important;
     }
-    .stTabs [aria-selected="true"] p {
-        color: #FFFFFF !important;
-    }
-    button[kind="primary"] p {
-        color: #FFFFFF !important;
-    }
-    div[data-testid="metric-container"] {
-        background-color: #FFFFFF !important;
-        border: 1px solid #CBD5E1;
-        padding: 18px 22px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        border-top: 4px solid #1B4965;
-    }
-    div[data-testid="stAlert"] p {
-        color: #FFFFFF !important;
-    }
-    /* Məlumat qutusunun (st.info) içindəki yazı ağ rəngdə olsun */
-    div[data-testid="stAlert"] p {
-        color: #FFFFFF !important;
-    }
-    /* Ağ xanaların içindəki nümunə (placeholder) yazılar tünd boz olsun */
-    input::placeholder, textarea::placeholder {
-        color: #475569 !important;
-        opacity: 1 !important;
-    }
-    /* Bütün düymələrin içindəki yazılar ağ rəngdə olsun */
+    .stTabs [aria-selected="true"] p { color: #FFFFFF !important; }
     button, .stButton > button, .stDownloadButton > button {
-        background-color: #0A2540 !important;
+        background: linear-gradient(90deg, #06182C 0%, #0F3460 100%) !important;
         color: #FFFFFF !important;
         border: none !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 12px rgba(6, 24, 44, 0.18) !important;
     }
-    button p, .stButton > button p, .stDownloadButton > button p {
-        color: #FFFFFF !important;
+    button p, .stButton > button p, .stDownloadButton > button p { color: #FFFFFF !important; }
+    div[data-testid="metric-container"] {
+        background: #FFFFFF !important;
+        border: 1px solid #CBD5E1;
+        padding: 20px 24px;
+        border-radius: 14px;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+        border-top: 5px solid #0F3460;
     }
-    /* Açılan qutunun (Expander) başlığı ağ rəngdə olsun */
+    div[data-testid="stAlert"] p { color: #FFFFFF !important; }
     div[data-testid="stExpander"] summary, div[data-testid="stExpander"] summary p {
-        background-color: #0A2540 !important;
+        background: linear-gradient(90deg, #06182C 0%, #0F3460 100%) !important;
         color: #FFFFFF !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -277,18 +267,29 @@ with tab1:
         if xeta_var:
             st.error("⚠️ Zəhmət olmasa bütün vacib (*) xanaları doldurun və FİN kodun 7 simvol olduğuna əmin olun!")
         else:
+            api_key_form = st.secrets.get("GEMINI_API_KEY", "")
             yeni_setirler = []
             for z in zallar_melumat:
                 cemi_idmanci, potensial, doluluq_str, netice = hesabla_netice(z["sahe"], z["qiz"], z["oglan"])
+                son_not = z["elave_not"]
+
+                if api_key_form and str(son_not).strip() != "":
+                    try:
+                        c_ai = genai.Client(api_key=api_key_form)
+                        r_ai = c_ai.models.generate_content(
+                            model="gemini-3.8-flash",
+                            contents=f"Aşağıdakı idman zalı qeydini Azərbaycan dilində çox qısa, rəsmi və səliqəli bir cümləyə çevir (yalnız düzəldilmiş mətni yaz): {son_not}"
+                        )
+                        son_not = r_ai.text.strip()
+                    except Exception:
+                        pass
 
                 yeni_setirler.append([
                     z["rayon"], z["zal_adi"], "", "", "", z["sahe"], z["unvan"], elaqe,
                     muellim_adi, muellim_sayi, muellim_yasi, fin_kod,
                     z["qiz"], z["oglan"], cemi_idmanci, potensial, doluluq_str,
-                    netice, z["elave_not"], ""
+                    netice, son_not, ""
                 ])
-
-                yeni_df = pd.DataFrame(yeni_setirler, columns=SUTUNLAR)
                 with FAYL_KILIDI:
                     if os.path.exists(FAYL_ADI):
                         movcud_baza = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza")
