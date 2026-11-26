@@ -607,6 +607,5 @@ with tab2:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     use_container_width=True
                 )
-            
-         elif sifre != "":
-             st.error("❌ Şifrə yanlışdır!")
+
+         
