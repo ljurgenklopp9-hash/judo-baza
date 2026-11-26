@@ -499,7 +499,7 @@ with tab2:
                         client = genai.Client(api_key=api_key)
                         cavab_alindi = False
 
-                        for model_adi in ["gemini-3.8-flash", "gemini-3.5-flash-lite"]:
+                        for model_adi in ["gemini-2.5-flash", "gemini-2.5-flash-lite"]:
                             try:
                                 res = client.models.generate_content(model=model_adi, contents=analiz_prompt)
                                 st.markdown(res.text)
@@ -509,44 +509,32 @@ with tab2:
                                 continue
 
                         if not cavab_alindi:
-                            st.info("ℹ️ Daxili analitik mühərrik hesabatı hazırladı:")
-                            cemi_zal = len(baza_df)
-                            cemi_qiz = int(baza_df["Qız"].sum())
-                            cemi_oglan = int(baza_df["Oğlan"].sum())
-                            zeif_zallar = baza_df[baza_df["Nəticə"].astype(str).str.contains("Qeyri", na=False)]
-                            st.markdown(
-                                f"**Ümumi zal:** {cemi_zal} | **Ümumi idmançı:** {cemi_qiz + cemi_oglan} (**Qız:** {cemi_qiz}, **Oğlan:** {cemi_oglan}) | **Zəif zallar:** {len(zeif_zallar)}")
-        if os.path.exists(FAYL_ADI):
-            df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza", dtype=str).fillna("")
+                            st.info("ℹ️ Daxili analitik mühərrik sualınıza uyğun nəticəni hazırladı:")
+                            sual_kicik = str(tapshiriq).lower()
+                            rayon_qrup = baza_df.groupby("Klubun yerləşdiyi rayon", as_index=False).agg(
+                                Zal_Sayi=("Zalın adı (ümumi)", "count"),
+                                Qiz=("Qız", "sum"),
+                                Oglan=("Oğlan", "sum"),
+                                Cemi=("Cəmi idmançı", "sum")
+                            )
 
-            rayon_seriyasi = df["Klubun yerləşdiyi rayon"].astype(str)
-            baki_sayi = len(df[rayon_seriyasi.str.startswith("Bakı")])
-            sumqayit_sayi = len(df[rayon_seriyasi == "Sumqayıt"])
-            region_sayi = len(df[(~rayon_seriyasi.str.startswith("Bakı")) & (rayon_seriyasi != "Sumqayıt")])
-
-            cemi_say = int(pd.to_numeric(df["Cəmi idmançı"], errors="coerce").fillna(0).sum())
-            qiz_say = int(pd.to_numeric(df["Qız"], errors="coerce").fillna(0).sum())
-            oglan_say = int(pd.to_numeric(df["Oğlan"], errors="coerce").fillna(0).sum())
-
-            c1, c2, c3, c4 = st.columns(4)
-            c1.metric("Ümumi Zal Sayı", len(df), f"Bakı: {baki_sayi} | Sumqayıt: {sumqayit_sayi} | Region: {region_sayi}")
-            c2.metric("Ümumi İdmançı", cemi_say)
-            c3.metric("Qız İdmançılar", qiz_say)
-            c4.metric("Oğlan İdmançılar", oglan_say)
-
-            st.markdown("### 📈 Vizual Analitika və Bölgələr üzrə İcmal")
-            g_col1, g_col2 = st.columns(2)
-            with g_col1:
-                st.markdown("**Qiymətləndirmə (Nəticə) üzrə Zalların Sayı**")
-                st.bar_chart(df["Nəticə"].value_counts())
-            with g_col2:
-                st.markdown("**Rayonlar üzrə İdmançı Sayı (Top 10)**")
-                df_num = df.copy()
-                df_num["Cəmi idmançı"] = pd.to_numeric(df_num["Cəmi idmançı"], errors="coerce").fillna(0)
-                rayon_qrup = df_num.groupby("Klubun yerləşdiyi rayon")["Cəmi idmançı"].sum().sort_values(ascending=False).head(10)
-                st.bar_chart(rayon_qrup)
-
-            st.divider()
+                            if "qız" in sual_kicik or "qiz" in sual_kicik:
+                                netice_cedvel = rayon_qrup.sort_values(by="Qiz", ascending=True).head(15)
+                                st.markdown("**📉 Qız idmançı sayı ən az olan 15 rayon/bölgə:**")
+                                st.dataframe(netice_cedvel, use_container_width=True)
+                            elif "oğlan" in sual_kicik or "oglan" in sual_kicik:
+                                netice_cedvel = rayon_qrup.sort_values(by="Oglan", ascending=True).head(15)
+                                st.markdown("**📉 Oğlan idmançı sayı ən az olan 15 rayon/bölgə:**")
+                                st.dataframe(netice_cedvel, use_container_width=True)
+                            else:
+                                cemi_zal = len(baza_df)
+                                cemi_qiz = int(baza_df["Qız"].sum())
+                                cemi_oglan = int(baza_df["Oğlan"].sum())
+                                zeif_zallar = baza_df[baza_df["Nəticə"].astype(str).str.contains("Qeyri", na=False)]
+                                st.markdown(
+                                    f"**Ümumi zal:** {cemi_zal} | **Ümumi idmançı:** {cemi_qiz + cemi_oglan} (**Qız:** {cemi_qiz}, **Oğlan:** {cemi_oglan}) | **Zəif zallar:** {len(zeif_zallar)}")
+                                st.dataframe(rayon_qrup.sort_values(by="Cemi", ascending=False).head(15),
+                                             use_container_width=True)
 
             st.markdown("### 🔍 Sürətli Axtarış və Filtr")
             f_col1, f_col2, f_col3, f_col4 = st.columns(4)
