@@ -607,7 +607,6 @@ with tab2:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     use_container_width=True
                 )
-        else:
-            st.warning("Hələ heç bir klub məlumat daxil etməyib.")
-    elif sifre != "":
-        st.error("❌ Şifrə yanlışdır!")
+            
+         elif sifre != "":
+             st.error("❌ Şifrə yanlışdır!")
