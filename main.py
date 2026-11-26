@@ -1,6 +1,6 @@
 import streamlit as st
 import threading
-FAYL_KİLİDİ = threading.Lock()
+FAYL_KILIDI = threading.Lock()
 import pandas as pd
 import math
 import os
