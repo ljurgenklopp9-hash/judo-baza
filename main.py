@@ -288,16 +288,16 @@ with tab1:
                     netice, z["elave_not"], ""
                 ])
 
-            yeni_df = pd.DataFrame(yeni_setirler, columns=SUTUNLAR)
-        with FAYL_KILIDI:
-            if os.path.exists(FAYL_ADI):
-                movcud_baza = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza")
-                yenilenmis_baza = pd.concat([movcud_baza, yeni_df], ignore_index=True)
-            else:
-                yenilenmis_baza = yeni_df
+                yeni_df = pd.DataFrame(yeni_setirler, columns=SUTUNLAR)
+                with FAYL_KILIDI:
+                    if os.path.exists(FAYL_ADI):
+                        movcud_baza = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza")
+                        yenilenmis_baza = pd.concat([movcud_baza, yeni_df], ignore_index=True)
+                    else:
+                        yenilenmis_baza = yeni_df
 
-            excele_pesekar_yaz(yenilenmis_baza)
-            st.success(f"🎉 Təşəkkürlər, {muellim_adi}! {len(yeni_setirler)} zal üzrə məlumatlar avtomatik olaraq müvafiq nüsxəyə (Bakı / Sumqayıt / Region) əlavə edildi.")
+                    excele_pesekar_yaz(yenilenmis_baza)
+                st.success(f"🎉 Təşəkkürlər, {muellim_adi}! {len(yeni_setirler)} zal üzrə məlumatlar avtomatik olaraq müvafiq nüsxəyə (Bakı / Sumqayıt / Region) əlavə edildi.")
 
         st.error("❌ Şifrə yanlışdır!")
 
