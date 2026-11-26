@@ -1,4 +1,6 @@
 import streamlit as st
+import threading
+FAYL_KİLİDİ = threading.Lock()
 import pandas as pd
 import math
 import os
@@ -287,7 +289,7 @@ with tab1:
                 ])
 
             yeni_df = pd.DataFrame(yeni_setirler, columns=SUTUNLAR)
-
+        with FAYL_KILIDI:
             if os.path.exists(FAYL_ADI):
                 movcud_baza = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza")
                 yenilenmis_baza = pd.concat([movcud_baza, yeni_df], ignore_index=True)
@@ -514,7 +516,7 @@ with tab2:
                             st.markdown(
                                 f"**Ümumi zal:** {cemi_zal} | **Ümumi idmançı:** {cemi_qiz + cemi_oglan} (**Qız:** {cemi_qiz}, **Oğlan:** {cemi_oglan}) | **Zəif zallar:** {len(zeif_zallar)}")
         if os.path.exists(FAYL_ADI):
-            df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza").fillna("")
+            df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza", dtype=str).fillna("")
 
             rayon_seriyasi = df["Klubun yerləşdiyi rayon"].astype(str)
             baki_sayi = len(df[rayon_seriyasi.str.startswith("Bakı")])
