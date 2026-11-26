@@ -292,6 +292,7 @@ with tab1:
                 ])
                 with FAYL_KILIDI:
                     if os.path.exists(FAYL_ADI):
+                        df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza", dtype=str).fillna("")
                         movcud_baza = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza")
                         yenilenmis_baza = pd.concat([movcud_baza, yeni_df], ignore_index=True)
                     else:
@@ -535,7 +536,10 @@ with tab2:
                                     f"**Ümumi zal:** {cemi_zal} | **Ümumi idmançı:** {cemi_qiz + cemi_oglan} (**Qız:** {cemi_qiz}, **Oğlan:** {cemi_oglan}) | **Zəif zallar:** {len(zeif_zallar)}")
                                 st.dataframe(rayon_qrup.sort_values(by="Cemi", ascending=False).head(15),
                                              use_container_width=True)
-
+            if os.path.exists(FAYL_ADI):
+                df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza", dtype=str).fillna("")
+            else:
+                df = pd.DataFrame(columns=SUTUNLAR)
             st.markdown("### 🔍 Sürətli Axtarış və Filtr")
             f_col1, f_col2, f_col3, f_col4 = st.columns(4)
             with f_col1:
@@ -608,4 +612,3 @@ with tab2:
                     use_container_width=True
                 )
 
-         
