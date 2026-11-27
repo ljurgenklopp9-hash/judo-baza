@@ -628,7 +628,10 @@ with tab2:
                                     else:
                                         st.dataframe(rayon_qrup.sort_values(by="Cemi", ascending=False),
                                                      use_container_width=True)
-
+            if os.path.exists(FAYL_ADI):
+                df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza", dtype=str).fillna("")
+            else:
+                df = pd.DataFrame(columns=SUTUNLAR)
             st.markdown("### ✏️ Bazanı Birbaşa Redaktə Et (Judo Manager, Lisenziya və Qeyd)")
             st.info("Cədvəldəki istənilən xanaya iki dəfə klikləyib məlumatı yazın və aşağıdakı düymə ilə yadda saxlayın. Bütün nüsxələr (Bakı, Sumqayıt, Region) avtomatik yenilənəcək.")
 
