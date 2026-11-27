@@ -544,11 +544,54 @@ with tab2:
                                 continue
 
                         if not cavab_alindi:
-                            st.info("ℹ️ Daxili analitik mühərrik sualınıza uyğun nəticəni hazırladı:")
-                            sual_kicik = str(tapshiriq).lower()
+                            st.info("ℹ️ Daxili analitik mühərrik sorğunuza uyğun hesabatı hazırladı:")
 
+                            if hesabat_btn:
+                                r_ser = baza_df["Klubun yerləşdiyi rayon"].astype(str)
+                                baki_df = baza_df[r_ser.str.startswith("Bakı")]
+                                sumq_df = baza_df[r_ser == "Sumqayıt"]
+                                reg_df = baza_df[(~r_ser.str.startswith("Bakı")) & (r_ser != "Sumqayıt")]
 
-                            if "nisbət" in sual_kicik or "nisbet" in sual_kicik:
+                                cemi_q = int(baza_df["Qız"].sum())
+                                cemi_o = int(baza_df["Oğlan"].sum())
+                                nisbet = round(cemi_o / cemi_q, 2) if cemi_q > 0 else cemi_o
+
+                                st.markdown(f"""
+                                                        ### 📋 Azərbaycan Cüdo Federasiyası — Rəsmi İclas Arayışı
+                                                        * **Ümumi qeydiyyatlı zal sayı:** {len(baza_df)} zal
+                                                        * **Bölgələr üzrə paylanma:** Bakı — **{len(baki_df)}**, Sumqayıt — **{len(sumq_df)}**, Regionlar — **{len(reg_df)}**
+                                                        * **Ümumi idmançı kontingenti:** {cemi_q + cemi_o} nəfər (**Oğlan:** {cemi_o}, **Qız:** {cemi_q})
+                                                        * **Respublika üzrə nisbət:** Hər **1** qız idmançıya **{nisbet}** oğlan idmançı düşür.
+                                                        """)
+
+                            elif problem_btn:
+                                dublikatlar = baza_df[
+                                    (baza_df["Şəxsiyyət vəsiqəsinin FİN kodu"].astype(str).str.strip() != "") &
+                                    (baza_df["Şəxsiyyət vəsiqəsinin FİN kodu"].astype(str) != "0000000") &
+                                    (baza_df.duplicated(subset=["Şəxsiyyət vəsiqəsinin FİN kodu", "Zalın adı (ümumi)"],
+                                                        keep=False))
+                                    ]
+                                zeif_zallar = baza_df[baza_df["Nəticə"].astype(str).str.contains("Qeyri", na=False)]
+                                notlu_zallar = baza_df[baza_df["Əlavə not"].astype(str).str.strip() != ""]
+
+                                st.markdown(f"""
+                                                        ### 🔍 Baza Audit və Problem Hesabatı
+                                                        * **Təkrarlanan (Dublikat) qeydlər:** {len(dublikatlar)} sətir
+                                                        * **Qeyri-qənaətbəxş nəticəli zallar:** {len(zeif_zallar)} zal
+                                                        * **Xüsusi qeyd/ehtiyac bildirilən zallar:** {len(notlu_zallar)} zal
+                                                        """)
+                                if len(zeif_zallar) > 0:
+                                    st.markdown("**⚠️ Qeyri-qənaətbəxş göstəricili zallar (ilk 15):**")
+                                    st.dataframe(zeif_zallar[["Klubun yerləşdiyi rayon", "Zalın adı (ümumi)",
+                                                              "Müəllimlərin adı", "Cəmi idmançı", "Orta doluluq"]].head(
+                                        15), use_container_width=True)
+                                if len(notlu_zallar) > 0:
+                                    st.markdown("**📝 Məşqçilərin bildirdiyi əlavə qeydlər və ehtiyaclar (ilk 15):**")
+                                    st.dataframe(notlu_zallar[["Klubun yerləşdiyi rayon", "Zalın adı (ümumi)",
+                                                               "Əlavə not"]].head(15), use_container_width=True)
+
+                            else:
+                                sual_kicik = str(tapshiriq).lower()
                                 r_ser = baza_df["Klubun yerləşdiyi rayon"].astype(str)
                                 if "region" in sual_kicik:
                                     secim_df = baza_df[(~r_ser.str.startswith("Bakı")) & (r_ser != "Sumqayıt")]
@@ -563,60 +606,28 @@ with tab2:
                                     secim_df = baza_df
                                     bolge_adi = "Ümumi Respublika"
 
-                                q_cem = int(secim_df["Qız"].sum())
-                                o_cem = int(secim_df["Oğlan"].sum())
-                                nisbet = round(o_cem / q_cem, 2) if q_cem > 0 else o_cem
-                                st.markdown(f"""
-                                                           **📊 {bolge_adi} üzrə Qız və Oğlan İdmançı Nisbəti:**
-                                                           * **Oğlan idmançı sayı:** {o_cem} nəfər
-                                                           * **Qız idmançı sayı:** {q_cem} nəfər
-                                                           * **Nisbət (Oğlan / Qız):** Hər **1** qız idmançıya **{nisbet}** oğlan idmançı düşür (**{o_cem}:{q_cem}**).
-                                                           """)
-                            else:
-                                rayon_qrup = baza_df.groupby("Klubun yerləşdiyi rayon", as_index=False).agg(
-                                    Zal_Sayi=("Zalın adı (ümumi)", "count"),
-                                    Qiz=("Qız", "sum"),
-                                    Oglan=("Oğlan", "sum"),
-                                    Cemi=("Cəmi idmançı", "sum")
-                                )
-                                st.dataframe(rayon_qrup.sort_values(by="Cemi", ascending=False),
-                                             use_container_width=True)
-            if os.path.exists(FAYL_ADI):
-                df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza", dtype=str).fillna("")
-            else:
-                df = pd.DataFrame(columns=SUTUNLAR)
-            st.markdown("### 🔍 Sürətli Axtarış və Filtr")
-            f_col1, f_col2, f_col3, f_col4 = st.columns(4)
-            with f_col1:
-                bolge_secimi = st.selectbox("Nüsxə (Bölgə) üzrə:", ["Ümumi Baza", "Bakı nüsxəsi", "Sumqayıt nüsxəsi", "Region nüsxəsi"])
-            with f_col2:
-                axtaris = st.text_input("Açar söz (Müəllim, Zal, FİN, Nömrə):")
-            with f_col3:
-                movcud_rayonlar = ["Hamısı"] + sorted(list(set(df["Klubun yerləşdiyi rayon"].astype(str))))
-                secilen_rayon = st.selectbox("Konkret rayon üzrə:", movcud_rayonlar)
-            with f_col4:
-                secilen_netice = st.selectbox("Nəticə üzrə:", ["Hamısı", "Əla", "Yaxşı", "Qənaətbəxş", "Qeyri-qənaətbəxş"])
-
-            filtrlenmis_df = df.copy()
-            if bolge_secimi == "Bakı nüsxəsi":
-                filtrlenmis_df = filtrlenmis_df[filtrlenmis_df["Klubun yerləşdiyi rayon"].astype(str).str.startswith("Bakı")]
-            elif bolge_secimi == "Sumqayıt nüsxəsi":
-                filtrlenmis_df = filtrlenmis_df[filtrlenmis_df["Klubun yerləşdiyi rayon"].astype(str) == "Sumqayıt"]
-            elif bolge_secimi == "Region nüsxəsi":
-                filtrlenmis_df = filtrlenmis_df[(~filtrlenmis_df["Klubun yerləşdiyi rayon"].astype(str).str.startswith("Bakı")) & (filtrlenmis_df["Klubun yerləşdiyi rayon"].astype(str) != "Sumqayıt")]
-
-            if secilen_rayon != "Hamısı":
-                filtrlenmis_df = filtrlenmis_df[filtrlenmis_df["Klubun yerləşdiyi rayon"] == secilen_rayon]
-            if secilen_netice != "Hamısı":
-                filtrlenmis_df = filtrlenmis_df[filtrlenmis_df["Nəticə"] == secilen_netice]
-            if axtaris:
-                mask = filtrlenmis_df.astype(str).apply(lambda x: x.str.contains(axtaris, case=False, na=False)).any(axis=1)
-                filtrlenmis_df = filtrlenmis_df[mask]
-
-            st.caption(f"Tapılan nəticə: {len(filtrlenmis_df)} zal")
-            st.dataframe(filtrlenmis_df, use_container_width=True)
-
-            st.divider()
+                                if "nisbət" in sual_kicik or "nisbet" in sual_kicik:
+                                    q_cem = int(secim_df["Qız"].sum())
+                                    o_cem = int(secim_df["Oğlan"].sum())
+                                    nisbet = round(o_cem / q_cem, 2) if q_cem > 0 else o_cem
+                                    st.markdown(
+                                        f"**📊 {bolge_adi} üzrə Nisbət:** Oğlan: **{o_cem}**, Qız: **{q_cem}** — Hər **1** qıza **{nisbet}** oğlan düşür (**{o_cem}:{q_cem}**).")
+                                else:
+                                    rayon_qrup = secim_df.groupby("Klubun yerləşdiyi rayon", as_index=False).agg(
+                                        Zal_Sayi=("Zalın adı (ümumi)", "count"),
+                                        Qiz=("Qız", "sum"),
+                                        Oglan=("Oğlan", "sum"),
+                                        Cemi=("Cəmi idmançı", "sum")
+                                    )
+                                    if "az" in sual_kicik and ("qız" in sual_kicik or "qiz" in sual_kicik):
+                                        st.dataframe(rayon_qrup.sort_values(by="Qiz", ascending=True).head(15),
+                                                     use_container_width=True)
+                                    elif "çox" in sual_kicik or "cox" in sual_kicik or "ən" in sual_kicik:
+                                        st.dataframe(rayon_qrup.sort_values(by="Cemi", ascending=False).head(15),
+                                                     use_container_width=True)
+                                    else:
+                                        st.dataframe(rayon_qrup.sort_values(by="Cemi", ascending=False),
+                                                     use_container_width=True)
 
             st.markdown("### ✏️ Bazanı Birbaşa Redaktə Et (Judo Manager, Lisenziya və Qeyd)")
             st.info("Cədvəldəki istənilən xanaya iki dəfə klikləyib məlumatı yazın və aşağıdakı düymə ilə yadda saxlayın. Bütün nüsxələr (Bakı, Sumqayıt, Region) avtomatik yenilənəcək.")
