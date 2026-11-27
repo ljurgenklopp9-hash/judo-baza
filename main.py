@@ -731,7 +731,7 @@ with tab4:
                         break
                     try:
                         c_chat = genai.Client(vertexai=vertex_rejim, api_key=api_key_chat)
-                        for m_adi in ["gemini-2.5-flash", "gemini-2.0-flash"]:
+                        for m_adi in ["gemini-3.8-flash", "gemini-3.5-flash-lite"]:
                             try:
                                 r_chat = c_chat.models.generate_content(model=m_adi, contents=chat_prompt)
                                 cavab_metni = r_chat.text
