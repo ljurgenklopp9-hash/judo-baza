@@ -125,83 +125,116 @@ st.set_page_config(page_title="Azərbaycan Cüdo Federasiyası | Elektron Baza",
 
 st.markdown("""
 <style>
+    @import url('https://googleapis.com');
+
     .stApp {
-        background: linear-gradient(180deg, #E2E8F0 0%, #F8FAFC 40%, #EFF6FF 100%) !important;
-        color: #0F172A !important;
+        background: radial-gradient(circle at 50% 0%, #0D1E3A 0%, #070F1E 55%, #030712 100%) !important;
+        color: #F1F5F9 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
     h1, h2, h3, h4, p, label, .stMarkdown, div[data-testid="stWidgetLabel"] p {
-        color: #0F172A !important;
-        font-weight: 600 !important;
+        color: #F1F5F9 !important;
     }
     .header-banner {
-        background: linear-gradient(135deg, #06182C 0%, #0F3460 55%, #1E5F74 100%);
-        padding: 30px 38px;
-        border-radius: 16px;
-        margin-bottom: 24px;
-        box-shadow: 0 12px 28px rgba(6, 24, 44, 0.22);
-        border-left: 10px solid #D97706;
+        background: linear-gradient(180deg, rgba(15, 35, 70, 0.85) 0%, rgba(7, 15, 30, 0.98) 100%);
+        padding: 42px 36px;
+        border-radius: 20px;
+        margin-bottom: 28px;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        text-align: center;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
     }
-    .header-banner h1 { color: #FFFFFF !important; margin: 0; font-size: 30px; font-weight: 800; }
-    .header-banner p { color: #CBD5E1 !important; margin: 8px 0 0 0; font-size: 15px; font-weight: 400 !important; }
-    .info-card {
-        background: rgba(255, 255, 255, 0.94);
-        padding: 22px;
-        border-radius: 14px;
-        border: 1px solid #CBD5E1;
-        border-left: 6px solid #D97706;
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-        margin-bottom: 16px;
+    .header-badge {
+        display: inline-block;
+        background-color: rgba(56, 189, 248, 0.14);
+        color: #38BDF8 !important;
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        padding: 5px 16px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600 !important;
+        letter-spacing: 1px;
+        margin-bottom: 14px;
     }
-    div[data-testid="stForm"] {
-        background: #FFFFFF !important;
+    .header-banner h1 {
+        font-family: 'Playfair Display', serif !important;
+        color: #38BDF8 !important;
+        margin: 0;
+        font-size: 38px;
+        font-weight: 700;
+        letter-spacing: -0.4px;
+    }
+    .header-banner p {
+        color: #94A3B8 !important;
+        margin: 12px auto 0 auto;
+        font-size: 16px;
+        max-width: 680px;
+    }
+    .info-card, div[data-testid="stForm"] {
+        background: #0C182E !important;
         padding: 26px !important;
         border-radius: 16px !important;
-        border: 1px solid #CBD5E1 !important;
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.07) !important;
+        border: 1px solid rgba(56, 189, 248, 0.2) !important;
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4) !important;
     }
     input, textarea, div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {
-        background-color: #F8FAFC !important;
-        color: #0F172A !important;
-        border: 1.5px solid #94A3B8 !important;
-        border-radius: 10px !important;
+        background-color: #060D1A !important;
+        color: #F8FAFC !important;
+        border: 1px solid rgba(56, 189, 248, 0.35) !important;
+        border-radius: 12px !important;
     }
-    input::placeholder, textarea::placeholder { color: #64748B !important; opacity: 1 !important; }
+    input::placeholder, textarea::placeholder {
+        color: #64748B !important;
+    }
     .stTabs [data-baseweb="tab"] {
-        background-color: #FFFFFF !important;
-        color: #0F172A !important;
-        border-radius: 10px 10px 0 0;
-        padding: 12px 24px;
-        border: 1px solid #CBD5E1;
+        background-color: #0C182E !important;
+        color: #94A3B8 !important;
+        border-radius: 24px !important;
+        padding: 10px 24px !important;
+        border: 1px solid rgba(56, 189, 248, 0.2) !important;
+        margin-right: 8px;
     }
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(90deg, #06182C 0%, #0F3460 100%) !important;
-        color: #FFFFFF !important;
-        border-bottom: 3px solid #D97706 !important;
+        background: linear-gradient(90deg, #0284C7 0%, #38BDF8 100%) !important;
+        color: #030712 !important;
+        font-weight: 700 !important;
     }
-    .stTabs [aria-selected="true"] p { color: #FFFFFF !important; }
+    .stTabs [aria-selected="true"] p {
+        color: #030712 !important;
+    }
     button, .stButton > button, .stDownloadButton > button {
-        background: linear-gradient(90deg, #06182C 0%, #0F3460 100%) !important;
-        color: #FFFFFF !important;
+        background: linear-gradient(90deg, #0284C7 0%, #38BDF8 100%) !important;
+        color: #030712 !important;
         border: none !important;
-        border-radius: 10px !important;
-        box-shadow: 0 4px 12px rgba(6, 24, 44, 0.18) !important;
+        border-radius: 28px !important;
+        padding: 10px 24px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.28) !important;
     }
-    button p, .stButton > button p, .stDownloadButton > button p { color: #FFFFFF !important; }
+    button p, .stButton > button p, .stDownloadButton > button p {
+        color: #030712 !important;
+    }
     div[data-testid="metric-container"] {
-        background: #FFFFFF !important;
-        border: 1px solid #CBD5E1;
-        padding: 20px 24px;
-        border-radius: 14px;
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
-        border-top: 5px solid #0F3460;
+        background: #0C182E !important;
+        border: 1px solid rgba(56, 189, 248, 0.22) !important;
+        padding: 22px 24px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35) !important;
     }
-    div[data-testid="stAlert"] p { color: #FFFFFF !important; }
-    div[data-testid="stExpander"] summary, div[data-testid="stExpander"] summary p {
-        background: linear-gradient(90deg, #06182C 0%, #0F3460 100%) !important;
-        color: #FFFFFF !important;
-        border-radius: 10px !important;
+    div[data-testid="stMetricValue"] {
+        color: #38BDF8 !important;
+        font-family: 'Playfair Display', serif !important;
+        font-size: 36px !important;
+    }
+    div[data-testid="stExpander"] summary {
+        background-color: #0C182E !important;
+        color: #38BDF8 !important;
+        border: 1px solid rgba(56, 189, 248, 0.3) !important;
+        border-radius: 14px !important;
     }
 </style>
+    
+
 """, unsafe_allow_html=True)
 
 st.markdown("""
@@ -540,6 +573,23 @@ with tab2:
                 df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza", dtype=str).fillna("")
             else:
                 df = pd.DataFrame(columns=SUTUNLAR)
+                st.markdown("### 📈 Vizual Analitika və Potensial Müqayisəsi")
+                g_col1, g_col2 = st.columns(2)
+                with g_col1:
+                    st.markdown("**Bölgələr üzrə Mövcud İdmançı vs Potensial Tutum**")
+                    df_num = df.copy()
+                    df_num["Mövcud İdmançı"] = pd.to_numeric(df_num["Cəmi idmançı"], errors="coerce").fillna(0)
+                    df_num["Potensial Tutum"] = pd.to_numeric(df_num["Potensial idmançı sayı"], errors="coerce").fillna(
+                        0)
+                    rayon_muqayise = df_num.groupby("Klubun yerləşdiyi rayon")[
+                        ["Mövcud İdmançı", "Potensial Tutum"]].sum().sort_values(by="Mövcud İdmançı",
+                                                                                 ascending=False).head(10)
+                    st.line_chart(rayon_muqayise, color=["#38BDF8", "#64748B"])
+                with g_col2:
+                    st.markdown("**Qiymətləndirmə (Nəticə) üzrə Zalların Bölgüsü**")
+                    st.bar_chart(df["Nəticə"].value_counts(), color="#38BDF8")
+
+                st.divider()
             st.markdown("### 🔍 Sürətli Axtarış və Filtr")
             f_col1, f_col2, f_col3, f_col4 = st.columns(4)
             with f_col1:
