@@ -244,7 +244,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["📝 Müəllim Qeydiyyat Portalı", "🔐 Federasiya İdarəetmə Mərkəzi"])
+tab1, tab2, tab3, tab4 = st.tabs(["📝 Müəllim Qeydiyyat Portalı", "❓ Təlimat və Dəstək", "💬 AI Köməkçi", "🔐 Federasiya İdarəetmə Mərkəzi"])
 
 with tab1:
     st.info(
@@ -671,3 +671,63 @@ with tab2:
                     use_container_width=True
                 )
 
+# --- 4-CÜ BÖLMƏ: UNİVERSAL AI SÖHBƏT PƏNCƏRƏSİ ---
+with tab4:
+    st.markdown("### 💬 Azərbaycan Cüdo Federasiyası — Universal AI Köməkçi")
+    st.info("Portaldan istifadə qaydaları, FİN kod, zal ölçüləri, cüdo qaydaları və ya ümumi suallarınızı aşağıdakı söhbət qutusuna yazın.")
+
+    if "ai_mesajlar" not in st.session_state:
+        st.session_state.ai_mesajlar = [
+            {"rol": "assistant", "metn": "Salam! Mən Azərbaycan Cüdo Federasiyasının rəqəmsal AI köməkçisiyəm. Sizə necə kömək edə bilərəm?"}
+        ]
+
+    for m in st.session_state.ai_mesajlar:
+        with st.chat_message(m["rol"]):
+            st.markdown(m["metn"])
+
+    istifadeci_suali = st.chat_input("Sualınızı bura yazın və Enter sıxın...")
+
+    if istifadeci_suali:
+        st.session_state.ai_mesajlar.append({"rol": "user", "metn": istifadeci_suali})
+        with st.chat_message("user"):
+            st.markdown(istifadeci_suali)
+
+        with st.chat_message("assistant"):
+            api_key_chat = st.secrets.get("GEMINI_API_KEY", "")
+            baza_xulase_chat = ""
+            if os.path.exists(FAYL_ADI):
+                try:
+                    df_c = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza").fillna("")
+                    baza_xulase_chat = f"Bazada hazırda {len(df_c)} zal qeydiyyatdadır."
+                except Exception:
+                    pass
+
+            chat_prompt = f"""
+            Sən Azərbaycan Cüdo Federasiyasının rəsmi universal AI köməkçisisən.
+            Vəzifən: Məşqçilərə və istifadəçilərə Azərbaycan dilində səmimi, aydın və peşəkar cavab verməkdir.
+            Portal haqqında məlumat:
+            - Məşqçilər 'Müəllim Qeydiyyat Portalı' bölməsindən zal sayını seçib məlumatları daxil edirlər.
+            - FİN kod şəxsiyyət vəsiqəsinin aşağı sağ küncündəki axırdan 1-ci simvol çıxılmaqla əvvəlki 7 simvoldur.
+            - Bir neçə zalı olanlar zal sayını artırmaqla bütün filialları eyni anda yaza bilərlər.
+            - Həmçinin cüdo qaydaları, məşq metodikası və ümumi suallara da universal cavab ver.
+            {baza_xulase_chat}
+
+            İstifadəçinin sualı: {istifadeci_suali}
+            """
+
+            cavab_metni = ""
+            if api_key_chat:
+                c_chat = genai.Client(api_key=api_key_chat)
+                for m_adi in ["gemini-2.5-flash", "gemini-2.5-flash-lite"]:
+                    try:
+                        r_chat = c_chat.models.generate_content(model=m_adi, contents=chat_prompt)
+                        cavab_metni = r_chat.text
+                        break
+                    except Exception:
+                        continue
+
+            if not cavab_metni:
+                cavab_metni = "Hazırda AI bağlantısında müvəqqəti yüklənmə var. Portaldan istifadə ilə bağlı bütün izahları yuxarıdakı 'Təlimat və Dəstək' bölməsindən də oxuya bilərsiniz."
+
+            st.markdown(cavab_metni)
+            st.session_state.ai_mesajlar.append({"rol": "assistant", "metn": cavab_metni})
