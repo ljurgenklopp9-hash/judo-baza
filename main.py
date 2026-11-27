@@ -581,6 +581,10 @@ with tab2:
                                 )
                                 st.dataframe(rayon_qrup.sort_values(by="Cemi", ascending=False),
                                              use_container_width=True)
+            if os.path.exists(FAYL_ADI):
+                df = pd.read_excel(FAYL_ADI, sheet_name="Ümumi Baza", dtype=str).fillna("")
+            else:
+                df = pd.DataFrame(columns=SUTUNLAR)
             st.markdown("### 🔍 Sürətli Axtarış və Filtr")
             f_col1, f_col2, f_col3, f_col4 = st.columns(4)
             with f_col1:
