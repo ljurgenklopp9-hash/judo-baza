@@ -244,7 +244,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4 = st.tabs(["📝 Müəllim Qeydiyyat Portalı", "❓ Təlimat və Dəstək", "💬 AI Köməkçi", "🔐 Federasiya İdarəetmə Mərkəzi"])
+tab1, tab2, tab3, tab4 = st.tabs(["📝 Müəllim Qeydiyyat Portalı", "🔐 Federasiya İdarəetmə Mərkəzi", "❓ Təlimat və Dəstək", "💬 AI Köməkçi"])
 
 with tab1:
     st.info(
@@ -671,6 +671,14 @@ with tab2:
                     use_container_width=True
                 )
 
+# --- 3-CÜ BÖLMƏ: TƏLİMAT VƏ DƏSTƏK ---
+with tab3:
+    st.markdown("### 📋 Məlumatların Daxil Edilməsi Qaydası")
+    st.markdown("""
+    * **1. Bir neçə zalı olan məşqçilər:** Formanın yuxarısında **"Ümumi zal / filial sayı"** xanasına 2 və ya 3 yazın, hər zal üçün ayrıca bölmə açılacaq.
+    * **2. FİN Kod:** Şəxsiyyət vəsiqəsinin aşağı sağ küncündəki kodun **axırdan 1-ci simvolu çıxılmaqla əvvəlki 7 simvolu** (hərf və rəqəmlər) FİN koddur.
+    * **3. Zalın sahəsi (m²):** Məşq sahəsini kvadrat metr ilə yazın, doluluq faizi avtomatik hesablanacaq.
+    """)
 # --- 4-CÜ BÖLMƏ: UNİVERSAL AI SÖHBƏT PƏNCƏRƏSİ ---
 with tab4:
     st.markdown("### 💬 Azərbaycan Cüdo Federasiyası — Universal AI Köməkçi")
@@ -716,18 +724,26 @@ with tab4:
             """
 
             cavab_metni = ""
+            xeta_detali = ""
             if api_key_chat:
-                c_chat = genai.Client(api_key=api_key_chat)
-                for m_adi in ["gemini-2.5-flash", "gemini-2.5-flash-lite"]:
-                    try:
-                        r_chat = c_chat.models.generate_content(model=m_adi, contents=chat_prompt)
-                        cavab_metni = r_chat.text
+                for vertex_rejim in [True, False]:
+                    if cavab_metni:
                         break
-                    except Exception:
-                        continue
+                    try:
+                        c_chat = genai.Client(vertexai=vertex_rejim, api_key=api_key_chat)
+                        for m_adi in ["gemini-2.5-flash", "gemini-2.0-flash"]:
+                            try:
+                                r_chat = c_chat.models.generate_content(model=m_adi, contents=chat_prompt)
+                                cavab_metni = r_chat.text
+                                break
+                            except Exception as e:
+                                xeta_detali = str(e)
+                                continue
+                    except Exception as e:
+                        xeta_detali = str(e)
 
             if not cavab_metni:
-                cavab_metni = "Hazırda AI bağlantısında müvəqqəti yüklənmə var. Portaldan istifadə ilə bağlı bütün izahları yuxarıdakı 'Təlimat və Dəstək' bölməsindən də oxuya bilərsiniz."
+                cavab_metni = f"⚠️ AI bağlantısı alınmadı (Texniki səbəb: {xeta_detali}). Zəhmət olmasa yuxarıdakı 'Təlimat və Dəstək' bölməsinə baxın."
 
             st.markdown(cavab_metni)
             st.session_state.ai_mesajlar.append({"rol": "assistant", "metn": cavab_metni})
